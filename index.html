@@ -89,9 +89,9 @@
 {
   "imports": {
     "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
@@ -128,11 +128,11 @@
             </div>
 
             <!-- Nav -->
-            <nav class="hidden md:flex gap-8 text-sm font-bold uppercase tracking-widest">
+            <nav class="hidden md:flex gap-8 text-sm font-bold uppercase tracking-widest items-center">
                 <a href="#" class="text-gray-400 hover:text-white transition-colors relative group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span></a>
                 <a href="#catalog" class="text-gray-400 hover:text-white transition-colors relative group">Inventory<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span></a>
                 <a href="#location" class="text-gray-400 hover:text-white transition-colors relative group">Shop Info<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span></a>
-                <button id="adminNavBtn" onclick="toggleAdminPanel()" class="hidden text-primary hover:text-white transition-colors relative group">Admin Panel</button>
+                <button id="adminNavBtn" onclick="toggleAdminPanel()" class="hidden px-4 py-2 bg-gray-800 rounded border border-gray-600 text-primary hover:text-white hover:border-primary transition-all relative group text-xs">Admin Panel</button>
             </nav>
         </div>
         <div class="h-1 bg-gradient-to-r from-secondary via-primary to-secondary"></div>
@@ -222,7 +222,7 @@
             </div>
             <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600 font-semibold tracking-wider uppercase">
                 <p>&copy; <span id="year"></span> BigBoyZ Rc. All rights reserved.</p>
-                <a href="#" onclick="openLoginModal(event)" class="text-gray-700 hover:text-primary transition-colors">Admin Access</a>
+                <a href="#" id="footerAdminLink" onclick="openLoginModal(event)" class="text-gray-700 hover:text-primary transition-colors">Admin Access</a>
             </div>
         </div>
     </footer>
@@ -236,13 +236,35 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <div class="w-full md:w-1/2 bg-gray-900 relative">
-                <img id="modalImage" src="" alt="" class="w-full h-64 md:h-full object-cover opacity-90" />
-                <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
-                <div class="absolute top-4 left-4 bg-primary text-white text-xs font-black px-3 py-1 uppercase tracking-widest skew-x-[-10deg]">
-                    <span class="skew-x-[10deg] inline-block">BigBoyZ Exclusive</span>
+            
+            <!-- Image Gallery Section -->
+            <div class="w-full md:w-1/2 bg-gray-900 relative flex flex-col">
+                <!-- Main Image -->
+                <div class="relative flex-grow h-64 md:h-auto overflow-hidden group">
+                    <img id="modalImage" src="" alt="" class="w-full h-full object-cover transition-all duration-300" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-50"></div>
+                    
+                    <!-- Exclusive Badge -->
+                    <div class="absolute top-4 left-4 bg-primary text-white text-xs font-black px-3 py-1 uppercase tracking-widest skew-x-[-10deg]">
+                        <span class="skew-x-[10deg] inline-block">BigBoyZ Exclusive</span>
+                    </div>
+
+                    <!-- Navigation Arrows (Hidden if single image) -->
+                    <button id="prevImgBtn" onclick="changeModalImage(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-primary text-white p-2 rounded-full hidden">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextImgBtn" onclick="changeModalImage(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-primary text-white p-2 rounded-full hidden">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Thumbnails -->
+                <div id="modalThumbnails" class="h-20 bg-black/40 flex gap-2 p-2 overflow-x-auto scrollbar-hide shrink-0">
+                    <!-- Thumbnails injected via JS -->
                 </div>
             </div>
+
+            <!-- Details Section -->
             <div class="w-full md:w-1/2 p-8 overflow-y-auto bg-surface">
                 <div class="mb-6">
                     <span id="modalCategory" class="text-primary font-bold text-xs tracking-[0.2em] uppercase mb-2 block"></span>
@@ -298,12 +320,24 @@
     <!-- Admin Panel (Overlay) -->
     <div id="adminPanel" class="fixed inset-0 z-[55] bg-secondary overflow-y-auto hidden">
         <!-- Admin Header -->
-        <div class="sticky top-0 bg-surface/95 backdrop-blur border-b border-gray-700 z-50 px-6 py-4 flex justify-between items-center">
+        <div class="sticky top-0 bg-surface/95 backdrop-blur border-b border-gray-700 z-50 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="h-8 w-8 bg-primary flex items-center justify-center font-display text-white text-sm">A</div>
                 <h1 class="text-xl font-display text-white uppercase italic">BigBoyZ <span class="text-gray-500">Dashboard</span></h1>
             </div>
-            <button onclick="logout()" class="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-wider border border-gray-600 px-4 py-2 rounded hover:bg-gray-800 transition-colors">Logout</button>
+            
+            <div class="flex items-center gap-3">
+                <!-- Backup/Restore Controls -->
+                <button onclick="backupData()" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded text-white transition-colors">
+                    <i class="fas fa-download"></i> Backup
+                </button>
+                <label class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded text-white transition-colors cursor-pointer">
+                    <i class="fas fa-upload"></i> Restore
+                    <input type="file" onchange="restoreData(event)" accept=".json" class="hidden">
+                </label>
+                <div class="w-px h-6 bg-gray-600 mx-2"></div>
+                <button onclick="logout()" class="text-red-400 hover:text-red-500 text-sm font-bold uppercase tracking-wider border border-red-900/50 px-4 py-2 rounded hover:bg-red-900/20 transition-colors">Logout</button>
+            </div>
         </div>
 
         <div class="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -332,7 +366,25 @@
                             <input type="number" id="prodPrice" placeholder="Price ($)" class="w-1/3 bg-secondary border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-primary text-sm">
                         </div>
 
-                        <input type="text" id="prodImg" placeholder="Image URL (https://...)" class="w-full bg-secondary border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-primary text-sm">
+                        <!-- Multi-Image Input Group -->
+                        <div class="space-y-2 bg-secondary/50 p-3 rounded border border-gray-700">
+                            <label class="block text-[10px] text-gray-500 uppercase font-bold">Product Images</label>
+                            
+                            <!-- Queue Preview -->
+                            <div id="imagePreviewContainer" class="flex gap-2 flex-wrap mb-2">
+                                <!-- JS Injects Thumbnails Here -->
+                            </div>
+
+                            <div class="flex gap-2 items-center">
+                                <label class="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded text-xs font-bold uppercase transition-colors shrink-0">
+                                    <i class="fas fa-camera"></i> Upload
+                                    <input type="file" id="prodImgFile" accept="image/*" multiple class="hidden" onchange="handleImageUpload(this)">
+                                </label>
+                                <input type="text" id="prodImgUrl" placeholder="Or paste URL & Enter" class="flex-grow bg-secondary border border-gray-700 rounded px-3 py-2 text-white text-xs focus:outline-none focus:border-primary" onkeypress="handleUrlAdd(event)">
+                                <button onclick="addUrlImageManually()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded text-xs font-bold"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <p class="text-[10px] text-gray-500">Supported: JPG, PNG. Add multiple images.</p>
+                        </div>
                         
                         <textarea id="prodDesc" placeholder="Description" rows="3" class="w-full bg-secondary border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-primary text-sm"></textarea>
                         
@@ -419,14 +471,14 @@
 
         // --- DATA & PERSISTENCE ---
         const DEFAULT_PRODUCTS = [
-            { id: '1', name: 'Nitro X-Treme Buggy', category: 'RC Cars', price: 349.99, image: 'https://picsum.photos/400/300?random=1', description: 'A 1/8 scale nitro-powered off-road buggy designed for competitive racing. Features a 3.5cc engine and aluminum chassis.', specs: { 'Scale': '1/8', 'Power': 'Nitro 3.5cc', 'Drive': '4WD', 'Top Speed': '45+ mph' }, inStock: true },
-            { id: '2', name: 'Velocity Deep-V Hull Boat', category: 'RC Boats', price: 199.99, image: 'https://picsum.photos/400/300?random=2', description: 'Slice through the water with this high-speed brushless electric boat. Self-righting hull design prevents capsizing.', specs: { 'Length': '24 inches', 'Motor': 'Brushless 2200kV', 'Battery Req': '3S LiPo', 'Top Speed': '35+ mph' }, inStock: true },
-            { id: '3', name: 'Rock Crawler Pro 4x4', category: 'RC Cars', price: 429.99, image: 'https://picsum.photos/400/300?random=3', description: 'Conquer any terrain with the Pro 4x4 Crawler. Features locking differentials and high-torque steering servos.', specs: { 'Scale': '1/10', 'Power': 'Electric Brushed', 'Features': 'Locking Diffs, LED Lights', 'Waterproof': 'Yes' }, inStock: true },
-            { id: '4', name: 'LiPo 5000mAh 3S Battery', category: 'Batteries', price: 45.00, image: 'https://picsum.photos/400/300?random=4', description: 'High-capacity 11.1V battery pack for extended run times. Deans connector included.', specs: { 'Capacity': '5000mAh', 'Voltage': '11.1V (3S)', 'C-Rating': '50C', 'Connector': 'Deans' }, inStock: true },
-            { id: '5', name: 'Smart Balance Charger', category: 'Chargers', price: 59.99, image: 'https://picsum.photos/400/300?random=5', description: 'Universal charger for LiPo, NiMH, and Pb batteries. Features LCD display and safety auto-cutoff.', specs: { 'Input': 'AC/DC', 'Max Charge': '6A', 'Supported': 'LiPo/LiFe/NiMH', 'Discharge': 'Yes' }, inStock: true },
-            { id: '6', name: 'Drift Spec Sedan', category: 'RC Cars', price: 259.99, image: 'https://picsum.photos/400/300?random=6', description: 'Master the art of sliding with this ready-to-run drift car. Includes hard drift tires and gyro stabilization.', specs: { 'Scale': '1/10', 'Drive': '4WD Belt', 'Motor': 'Brushless', 'Includes': 'Gyro' }, inStock: false },
-            { id: '7', name: 'Pro Tool Kit Hex Drivers', category: 'Accessories', price: 29.99, image: 'https://picsum.photos/400/300?random=7', description: 'Precision machined hex drivers with titanium nitride tips. Essential for vehicle maintenance.', specs: { 'Sizes': '1.5, 2.0, 2.5, 3.0mm', 'Material': 'HSS Steel', 'Handle': 'Aluminum', }, inStock: true },
-            { id: '8', name: 'Suspension Arm Set (Front)', category: 'Spare Parts', price: 12.50, image: 'https://picsum.photos/400/300?random=8', description: 'Replacement heavy-duty composite suspension arms for 1/10 scale buggies.', specs: { 'Position': 'Front Left/Right', 'Material': 'Composite Plastic', 'Fit': 'Series-X Buggy' }, inStock: true }
+            { id: '1', name: 'Nitro X-Treme Buggy', category: 'RC Cars', price: 349.99, images: ['https://picsum.photos/400/300?random=1'], description: 'A 1/8 scale nitro-powered off-road buggy designed for competitive racing. Features a 3.5cc engine and aluminum chassis.', specs: { 'Scale': '1/8', 'Power': 'Nitro 3.5cc', 'Drive': '4WD', 'Top Speed': '45+ mph' }, inStock: true },
+            { id: '2', name: 'Velocity Deep-V Hull Boat', category: 'RC Boats', price: 199.99, images: ['https://picsum.photos/400/300?random=2'], description: 'Slice through the water with this high-speed brushless electric boat. Self-righting hull design prevents capsizing.', specs: { 'Length': '24 inches', 'Motor': 'Brushless 2200kV', 'Battery Req': '3S LiPo', 'Top Speed': '35+ mph' }, inStock: true },
+            { id: '3', name: 'Rock Crawler Pro 4x4', category: 'RC Cars', price: 429.99, images: ['https://picsum.photos/400/300?random=3'], description: 'Conquer any terrain with the Pro 4x4 Crawler. Features locking differentials and high-torque steering servos.', specs: { 'Scale': '1/10', 'Power': 'Electric Brushed', 'Features': 'Locking Diffs, LED Lights', 'Waterproof': 'Yes' }, inStock: true },
+            { id: '4', name: 'LiPo 5000mAh 3S Battery', category: 'Batteries', price: 45.00, images: ['https://picsum.photos/400/300?random=4'], description: 'High-capacity 11.1V battery pack for extended run times. Deans connector included.', specs: { 'Capacity': '5000mAh', 'Voltage': '11.1V (3S)', 'C-Rating': '50C', 'Connector': 'Deans' }, inStock: true },
+            { id: '5', name: 'Smart Balance Charger', category: 'Chargers', price: 59.99, images: ['https://picsum.photos/400/300?random=5'], description: 'Universal charger for LiPo, NiMH, and Pb batteries. Features LCD display and safety auto-cutoff.', specs: { 'Input': 'AC/DC', 'Max Charge': '6A', 'Supported': 'LiPo/LiFe/NiMH', 'Discharge': 'Yes' }, inStock: true },
+            { id: '6', name: 'Drift Spec Sedan', category: 'RC Cars', price: 259.99, images: ['https://picsum.photos/400/300?random=6'], description: 'Master the art of sliding with this ready-to-run drift car. Includes hard drift tires and gyro stabilization.', specs: { 'Scale': '1/10', 'Drive': '4WD Belt', 'Motor': 'Brushless', 'Includes': 'Gyro' }, inStock: false },
+            { id: '7', name: 'Pro Tool Kit Hex Drivers', category: 'Accessories', price: 29.99, images: ['https://picsum.photos/400/300?random=7'], description: 'Precision machined hex drivers with titanium nitride tips. Essential for vehicle maintenance.', specs: { 'Sizes': '1.5, 2.0, 2.5, 3.0mm', 'Material': 'HSS Steel', 'Handle': 'Aluminum', }, inStock: true },
+            { id: '8', name: 'Suspension Arm Set (Front)', category: 'Spare Parts', price: 12.50, images: ['https://picsum.photos/400/300?random=8'], description: 'Replacement heavy-duty composite suspension arms for 1/10 scale buggies.', specs: { 'Position': 'Front Left/Right', 'Material': 'Composite Plastic', 'Fit': 'Series-X Buggy' }, inStock: true }
         ];
 
         const DEFAULT_CATEGORIES = ['All', 'RC Cars', 'RC Boats', 'Accessories', 'Batteries', 'Chargers', 'Spare Parts'];
@@ -435,13 +487,29 @@
         let products = JSON.parse(localStorage.getItem('bigboyz_products')) || DEFAULT_PRODUCTS;
         let categories = JSON.parse(localStorage.getItem('bigboyz_categories')) || DEFAULT_CATEGORIES;
 
+        // --- MIGRATION: Ensure all products have 'images' array ---
+        products = products.map(p => {
+            if (!p.images) {
+                // Migrate old 'image' string to new 'images' array
+                p.images = p.image ? [p.image] : ['https://picsum.photos/400/300?grayscale'];
+                delete p.image; // Cleanup
+            }
+            return p;
+        });
+
         function saveData() {
-            localStorage.setItem('bigboyz_products', JSON.stringify(products));
-            localStorage.setItem('bigboyz_categories', JSON.stringify(categories));
+            try {
+                localStorage.setItem('bigboyz_products', JSON.stringify(products));
+                localStorage.setItem('bigboyz_categories', JSON.stringify(categories));
+            } catch (e) {
+                alert("Storage full! Please delete some items or clear browser data.");
+            }
         }
 
         let selectedCategory = 'All';
         let searchQuery = '';
+        let currentModalProduct = null;
+        let currentModalImageIndex = 0;
 
         // --- DOM ELEMENTS ---
         const productGrid = document.getElementById('productGrid');
@@ -453,6 +521,7 @@
         const ADMIN_EMAIL = 'admin@gmail.com';
         const ADMIN_PASS = 'bigboyz';
         let isAdmin = false;
+        let adminImageDraft = []; // Stores URLs or Base64 strings for new product
 
         // --- RENDER FUNCTIONS ---
         function renderCategories() {
@@ -483,15 +552,24 @@
                         <p class="text-gray-400 text-xl font-display tracking-wide">No gear found.</p>
                     </div>`;
             } else {
-                productGrid.innerHTML = filtered.map(product => `
+                productGrid.innerHTML = filtered.map(product => {
+                    // Use first image for grid
+                    const mainImage = product.images && product.images.length > 0 ? product.images[0] : 'https://picsum.photos/400/300?grayscale';
+                    
+                    return `
                     <div onclick="openModal('${product.id}')" class="group bg-surface rounded-lg shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-gray-800 hover:border-primary/50 overflow-hidden flex flex-col cursor-pointer relative">
                         <div class="absolute top-3 left-3 z-10">
                             <span class="${product.inStock ? 'bg-green-500/90' : 'bg-red-600/90'} text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-wider backdrop-blur-sm shadow-sm">
                                 ${product.inStock ? 'In Stock' : 'Sold Out'}
                             </span>
                         </div>
+                        ${product.images.length > 1 ? `
+                        <div class="absolute top-3 right-3 z-10">
+                             <i class="fas fa-images text-white drop-shadow-md"></i>
+                        </div>
+                        ` : ''}
                         <div class="relative h-56 overflow-hidden bg-gray-900">
-                            <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-all duration-500" />
+                            <img src="${mainImage}" alt="${product.name}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-all duration-500" />
                             <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent opacity-60"></div>
                         </div>
                         <div class="p-5 flex flex-col flex-grow relative">
@@ -509,7 +587,7 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
 
             // Update Admin List
@@ -520,10 +598,12 @@
              const listBody = document.getElementById('adminProdList');
              document.getElementById('inventoryCount').textContent = `${products.length} Items`;
              
-             listBody.innerHTML = products.slice().reverse().map(p => `
+             listBody.innerHTML = products.slice().reverse().map(p => {
+                 const thumb = p.images && p.images.length > 0 ? p.images[0] : 'https://picsum.photos/400/300?grayscale';
+                 return `
                 <tr class="hover:bg-gray-800/50 transition-colors">
                     <td class="px-6 py-4">
-                        <img src="${p.image}" class="h-10 w-10 object-cover rounded border border-gray-700">
+                        <img src="${thumb}" class="h-10 w-10 object-cover rounded border border-gray-700">
                     </td>
                     <td class="px-6 py-4 font-bold text-white">${p.name}</td>
                     <td class="px-6 py-4">${p.category}</td>
@@ -534,7 +614,7 @@
                         </button>
                     </td>
                 </tr>
-             `).join('');
+             `}).join('');
         }
 
         // --- ACTIONS ---
@@ -573,9 +653,11 @@
                 isAdmin = true;
                 closeLoginModal();
                 toggleAdminPanel();
-                // Change Admin button text
-                document.querySelector('a[onclick="openLoginModal(event)"]').textContent = 'Dashboard';
-                document.getElementById('adminNavBtn').classList.remove('hidden');
+                // Update Admin Button in Nav
+                const navBtn = document.getElementById('adminNavBtn');
+                navBtn.classList.remove('hidden');
+                // Update Footer Link
+                document.getElementById('footerAdminLink').textContent = 'Dashboard';
             } else {
                 error.classList.remove('hidden');
             }
@@ -583,9 +665,13 @@
 
         window.logout = () => {
             isAdmin = false;
-            toggleAdminPanel();
-            document.querySelector('a[onclick="openLoginModal(event)"]').textContent = 'Admin Access';
+            // Hide dashboard
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            // Reset Nav
             document.getElementById('adminNavBtn').classList.add('hidden');
+            // Reset Footer
+            document.getElementById('footerAdminLink').textContent = 'Admin Access';
         };
 
         window.toggleAdminPanel = () => {
@@ -599,6 +685,114 @@
                 panel.classList.add('hidden');
                 document.body.style.overflow = 'auto';
             }
+        };
+
+        // --- MULTI-IMAGE ADMIN HANDLING ---
+        function renderImagePreview() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = adminImageDraft.map((src, index) => `
+                <div class="relative w-12 h-12 group">
+                    <img src="${src}" class="w-full h-full object-cover rounded border border-gray-600">
+                    <button onclick="removeImageFromDraft(${index})" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.handleImageUpload = (input) => {
+            const files = Array.from(input.files);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        // Compress
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600; 
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        // Push to draft array
+                        adminImageDraft.push(canvas.toDataURL('image/jpeg', 0.7));
+                        renderImagePreview();
+                    };
+                };
+                reader.readAsDataURL(file);
+            });
+            input.value = ''; // Reset input
+        };
+
+        window.handleUrlAdd = (e) => {
+            if (e.key === 'Enter') {
+                addUrlImageManually();
+            }
+        };
+
+        window.addUrlImageManually = () => {
+            const input = document.getElementById('prodImgUrl');
+            const url = input.value.trim();
+            if (url) {
+                adminImageDraft.push(url);
+                renderImagePreview();
+                input.value = '';
+            }
+        }
+
+        window.removeImageFromDraft = (index) => {
+            adminImageDraft.splice(index, 1);
+            renderImagePreview();
+        };
+
+        // --- BACKUP & RESTORE ---
+        window.backupData = () => {
+            const data = { products, categories };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "bigboyz_backup_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        };
+
+        window.restoreData = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.products && data.categories) {
+                        products = data.products;
+                        categories = data.categories;
+                        // Run migration in case restored data is old
+                        products = products.map(p => {
+                             if (!p.images) {
+                                p.images = p.image ? [p.image] : ['https://picsum.photos/400/300?grayscale'];
+                                delete p.image; 
+                            }
+                            return p;
+                        });
+                        saveData();
+                        renderCategories();
+                        renderProducts();
+                        renderAdminProductList();
+                        alert("Data successfully restored!");
+                    } else {
+                        alert("Invalid backup file.");
+                    }
+                } catch (err) {
+                    alert("Error reading file.");
+                }
+            };
+            reader.readAsText(file);
         };
 
         window.addCategory = () => {
@@ -617,9 +811,11 @@
             const name = document.getElementById('prodName').value;
             const cat = document.getElementById('prodCat').value;
             const price = parseFloat(document.getElementById('prodPrice').value);
-            const img = document.getElementById('prodImg').value || 'https://picsum.photos/400/300?grayscale';
             const desc = document.getElementById('prodDesc').value;
             const specsStr = document.getElementById('prodSpecs').value;
+
+            // Use draft images, or default if empty
+            const images = adminImageDraft.length > 0 ? [...adminImageDraft] : ['https://picsum.photos/400/300?grayscale'];
 
             if (!name || !price) {
                 alert('Name and Price are required');
@@ -640,7 +836,7 @@
                 name,
                 category: cat,
                 price,
-                image: img,
+                images: images,
                 description: desc,
                 specs,
                 inStock: true
@@ -653,7 +849,10 @@
             // Clear Form
             document.getElementById('prodName').value = '';
             document.getElementById('prodPrice').value = '';
-            document.getElementById('prodImg').value = '';
+            document.getElementById('prodImgUrl').value = '';
+            document.getElementById('prodImgFile').value = ''; 
+            adminImageDraft = []; // Reset draft
+            renderImagePreview();
             document.getElementById('prodDesc').value = '';
             document.getElementById('prodSpecs').value = '';
             
@@ -670,17 +869,20 @@
 
         // --- MODAL LOGIC ---
         window.openModal = (id) => {
-            const product = products.find(p => p.id === id);
-            if (!product) return;
+            currentModalProduct = products.find(p => p.id === id);
+            if (!currentModalProduct) return;
 
-            document.getElementById('modalImage').src = product.image;
-            document.getElementById('modalName').textContent = product.name;
-            document.getElementById('modalCategory').textContent = product.category;
-            document.getElementById('modalPrice').textContent = `$${product.price.toFixed(2)}`;
-            document.getElementById('modalDescription').textContent = product.description;
+            // Reset to first image
+            currentModalImageIndex = 0;
+            updateModalImageDisplay();
+
+            document.getElementById('modalName').textContent = currentModalProduct.name;
+            document.getElementById('modalCategory').textContent = currentModalProduct.category;
+            document.getElementById('modalPrice').textContent = `$${currentModalProduct.price.toFixed(2)}`;
+            document.getElementById('modalDescription').textContent = currentModalProduct.description;
             
             const stockEl = document.getElementById('modalStock');
-            if (product.inStock) {
+            if (currentModalProduct.inStock) {
                 stockEl.textContent = 'In Stock';
                 stockEl.className = 'px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold uppercase tracking-wide rounded-sm';
             } else {
@@ -689,15 +891,61 @@
             }
 
             const specsContainer = document.getElementById('modalSpecs');
-            specsContainer.innerHTML = Object.entries(product.specs).map(([k, v]) => `
+            specsContainer.innerHTML = Object.entries(currentModalProduct.specs).map(([k, v]) => `
                 <div>
                     <dt class="text-[10px] text-gray-500 uppercase font-black tracking-wider">${k}</dt>
                     <dd class="text-sm font-semibold text-gray-200">${v}</dd>
                 </div>
             `).join('');
 
+            // Render Thumbnails
+            const thumbContainer = document.getElementById('modalThumbnails');
+            if (currentModalProduct.images.length > 1) {
+                thumbContainer.classList.remove('hidden');
+                thumbContainer.innerHTML = currentModalProduct.images.map((img, idx) => `
+                    <img onclick="setModalImage(${idx})" src="${img}" class="h-full w-16 object-cover cursor-pointer border-2 transition-all ${idx === 0 ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}" id="thumb-${idx}" />
+                `).join('');
+            } else {
+                thumbContainer.classList.add('hidden');
+            }
+
+            // Show/Hide Arrows
+            const showArrows = currentModalProduct.images.length > 1;
+            document.getElementById('prevImgBtn').classList.toggle('hidden', !showArrows);
+            document.getElementById('nextImgBtn').classList.toggle('hidden', !showArrows);
+
             document.getElementById('productModal').classList.remove('hidden');
         };
+
+        window.updateModalImageDisplay = () => {
+            const imgEl = document.getElementById('modalImage');
+            imgEl.src = currentModalProduct.images[currentModalImageIndex];
+            
+            // Update Thumbnails Styles
+            if (currentModalProduct.images.length > 1) {
+                const thumbs = document.getElementById('modalThumbnails').children;
+                for (let i = 0; i < thumbs.length; i++) {
+                    if (i === currentModalImageIndex) {
+                        thumbs[i].classList.add('border-primary', 'opacity-100');
+                        thumbs[i].classList.remove('border-transparent', 'opacity-60');
+                    } else {
+                        thumbs[i].classList.remove('border-primary', 'opacity-100');
+                        thumbs[i].classList.add('border-transparent', 'opacity-60');
+                    }
+                }
+            }
+        }
+
+        window.setModalImage = (index) => {
+            currentModalImageIndex = index;
+            updateModalImageDisplay();
+        }
+
+        window.changeModalImage = (direction) => {
+            const total = currentModalProduct.images.length;
+            currentModalImageIndex = (currentModalImageIndex + direction + total) % total;
+            updateModalImageDisplay();
+        }
 
         window.closeModal = () => {
             document.getElementById('productModal').classList.add('hidden');
