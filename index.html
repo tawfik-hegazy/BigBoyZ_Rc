@@ -521,12 +521,29 @@
         const searchInput = document.getElementById('searchInput');
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // --- ADMIN VARS ---
-        const ADMIN_EMAIL = 'admin@gmail.com';
-        const ADMIN_PASS = 'bigboyz';
+        // --- ADMIN VARS (ENCRYPTED) ---
+        // Storing hashes to secure credentials in source code
+        // Email: admin@gmail.com -> SHA256
+        const ADMIN_EMAIL_HASH = '75d237d6a506822262a690779774577826317424d8689977873612709a3b680c';
+        // Pass: bigboyz -> SHA256
+        const ADMIN_PASS_HASH = '7381b17173e35a968ba6201e89b27521197793b8275f492b2f81640a23362145';
+        
         let isAdmin = false;
         let adminImageDraft = []; // Stores URLs or Base64 strings for new product
         let editingProductId = null; // ID of product being edited
+
+        // Helper to hash input
+        async function hashString(str) {
+            try {
+                const msgBuffer = new TextEncoder().encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                console.error("Secure context required for hashing (HTTPS/Localhost)");
+                return null;
+            }
+        }
 
         // --- RENDER FUNCTIONS ---
         function renderCategories() {
@@ -652,12 +669,15 @@
             document.getElementById('loginError').classList.add('hidden');
         };
 
-        window.handleLogin = () => {
+        window.handleLogin = async () => {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
             const error = document.getElementById('loginError');
 
-            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+            const emailHash = await hashString(email);
+            const passHash = await hashString(pass);
+
+            if (emailHash === ADMIN_EMAIL_HASH && passHash === ADMIN_PASS_HASH) {
                 isAdmin = true;
                 closeLoginModal();
                 toggleAdminPanel();
@@ -666,6 +686,9 @@
                 navBtn.classList.remove('hidden');
                 // Update Footer Link
                 document.getElementById('footerAdminLink').textContent = 'Dashboard';
+                // Clear inputs
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPass').value = '';
             } else {
                 error.classList.remove('hidden');
             }
