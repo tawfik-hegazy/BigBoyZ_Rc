@@ -2,6 +2,11 @@ import React from 'react';
 import { SOCIAL_LINKS } from '../constants';
 
 export const Footer: React.FC = () => {
+  const handleAdminClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    alert("Admin Login is currently under maintenance during the system upgrade.");
+  };
+
   return (
     <footer id="contact" className="bg-black text-white pt-20 pb-10 border-t border-gray-800">
       <div className="container mx-auto px-4">
@@ -54,6 +59,7 @@ export const Footer: React.FC = () => {
           <div className="flex gap-6">
              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+             <a href="#" onClick={handleAdminClick} className="text-gray-700 hover:text-primary transition-colors cursor-pointer">Admin Access</a>
           </div>
         </div>
       </div>
